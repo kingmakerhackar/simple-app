@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>எனது சொந்த ஏஐ இமேஜ் மேக்கர்</title>
+    <title>ஏஐ இமேஜ் மேக்கர்</title>
     <style>
         body { font-family: sans-serif; text-align: center; padding: 20px; background: #121212; color: white; }
-        input { padding: 10px; width: 80%; border-radius: 5px; border: none; margin-bottom: 10px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
-        #result { margin-top: 20px; }
-        img { max-width: 100%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .loading { color: yellow; font-style: italic; }
+        input { padding: 12px; width: 80%; border-radius: 8px; border: none; margin-bottom: 15px; font-size: 16px; }
+        button { padding: 12px 25px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        #result { margin-top: 25px; }
+        img { max-width: 100%; border-radius: 12px; box-shadow: 0 0 20px rgba(0,123,255,0.4); }
+        .loading { color: #ffcc00; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
     <h2>🎨 அன்லிமிட்டெட் ஏஐ இமேஜ் மேக்கர்</h2>
-    <p>எந்த கட்டுப்பாடும் இன்றி இமேஜ்களை உருவாக்கவும்.</p>
+    <p>எந்தக் கட்டுப்பாடும் இன்றி படங்களை உருவாக்கவும்.</p>
     
-    <input type="text" id="prompt" placeholder="நீங்கள் உருவாக்க விரும்பும் படத்தை இங்கே டைப் செய்யவும்...">
+    <input type="text" id="prompt" placeholder="உதாரணம்: A beautiful bird in a golden cage">
     <br>
     <button onclick="generateImage()">உருவாக்கு (Generate)</button>
 
@@ -32,22 +32,27 @@
             const status = document.getElementById('status');
             const container = document.getElementById('imageContainer');
             
-            if (!prompt) { alert("ஏதாவது டைப் செய்யுங்கள்!"); return; }
+            if (!prompt) { alert("தயவுசெய்து ஏதாவது டைப் செய்யுங்கள்!"); return; }
 
-            status.innerHTML = "<span class='loading'>படம் உருவாகிறது, சிறிது காத்திருக்கவும்...</span>";
+            status.innerHTML = "<p class='loading'>படம் தயாராகிறது... சிறிது காத்திருக்கவும்...</p>";
             container.innerHTML = "";
 
-            // Pollinations AI URL - இது தடையற்றது
-            const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 1000000)}&nologo=true`;
+            // புதிய இமேஜ் லிங்க் முறை
+            const randomId = Math.floor(Math.random() * 1000000);
+            const imageUrl = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=1024&height=1024&seed=" + randomId + "&nologo=true";
 
             const img = new Image();
             img.src = imageUrl;
+            img.style.display = "none"; // லோட் ஆகும் வரை மறைத்து வைக்கவும்
+
             img.onload = function() {
-                status.innerHTML = "வெற்றி! இதோ உங்கள் படம்:";
+                status.innerHTML = "";
+                img.style.display = "inline-block";
                 container.appendChild(img);
             };
+
             img.onerror = function() {
-                status.innerHTML = "மன்னிக்கவும், படம் உருவாக்குவதில் பிழை!";
+                status.innerHTML = "மன்னிக்கவும், மீண்டும் முயற்சி செய்யவும்.";
             };
         }
     </script>
