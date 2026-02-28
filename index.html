@@ -1,166 +1,105 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Image Generator</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Image Creator</title>
 
-    body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      color: #fff;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 20px;
-      margin-bottom: 16px;
-      font-weight: 600;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 80px;
-      border-radius: 12px;
-      border: none;
-      padding: 12px;
-      font-size: 14px;
-      resize: none;
-      outline: none;
-      margin-bottom: 12px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      background: #00c6ff;
-      background: linear-gradient(to right, #0072ff, #00c6ff);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    .image-wrapper {
-      margin-top: 16px;
-      width: 100%;
-      aspect-ratio: 1/1;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .image-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
-
-    .placeholder {
-      font-size: 14px;
-      opacity: 0.7;
-      text-align: center;
-      padding: 10px;
-    }
-
-    .loading {
-      position: absolute;
-      font-size: 14px;
-    }
-
-    @media (max-width: 360px) {
-      h1 {
-        font-size: 18px;
-      }
-    }
-  </style>
+<style>
+body {
+    font-family: sans-serif;
+    text-align: center;
+    padding: 20px;
+    background: #0b0e14;
+    color: white;
+    margin: 0;
+}
+input {
+    padding: 15px;
+    width: 85%;
+    border-radius: 12px;
+    border: 1px solid #333;
+    margin-bottom: 20px;
+    font-size: 16px;
+    background: #1a1f26;
+    color: white;
+}
+button {
+    padding: 15px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    font-weight: bold;
+    width: 90%;
+    font-size: 18px;
+}
+button:disabled {
+    opacity: 0.6;
+}
+#status {
+    margin-top: 20px;
+    color: #fbbf24;
+}
+img {
+    max-width: 100%;
+    border-radius: 15px;
+    margin-top: 25px;
+    border: 2px solid #2563eb;
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>AI Image Generator</h1>
-    <textarea id="prompt" placeholder="உங்கள் prompt-ஐ இங்கே எழுதுங்கள்..."></textarea>
-    <button onclick="generateImage()">Generate Image</button>
 
-    <div class="image-wrapper">
-      <div class="placeholder" id="placeholder">
-        படம் இங்கே காட்டப்படும்
-      </div>
-      <div class="loading" id="loading" style="display:none;">
-        லோடிங்...
-      </div>
-      <img id="resultImage" alt="Generated Image" />
-    </div>
-  </div>
+<h2>🚀 AI Image Master</h2>
 
-  <script>
-    function generateImage() {
-      const prompt = document.getElementById("prompt").value.trim();
-      const img = document.getElementById("resultImage");
-      const placeholder = document.getElementById("placeholder");
-      const loading = document.getElementById("loading");
+<input type="text" id="prompt" placeholder="எ.கா: A luxury car">
+<br>
+<button id="btn" onclick="generate()">Generate</button>
 
-      if (!prompt) {
-        alert("Prompt எழுதவும்");
+<p id="status"></p>
+<div id="imageArea"></div>
+
+<script>
+function generate() {
+
+    const prompt = document.getElementById('prompt').value.trim();
+    const status = document.getElementById('status');
+    const imageArea = document.getElementById('imageArea');
+    const btn = document.getElementById('btn');
+
+    if (!prompt) {
+        alert("ஏதாவது டைப் செய்யுங்கள்!");
         return;
-      }
-
-      img.style.display = "none";
-      placeholder.style.display = "none";
-      loading.style.display = "block";
-
-      const encodedPrompt = encodeURIComponent(prompt);
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&seed=${Date.now()}`;
-
-      const tempImg = new Image();
-      tempImg.crossOrigin = "anonymous";
-
-      tempImg.onload = function () {
-        img.src = imageUrl;
-        img.style.display = "block";
-        loading.style.display = "none";
-      };
-
-      tempImg.onerror = function () {
-        loading.style.display = "none";
-        placeholder.style.display = "block";
-        placeholder.textContent = "மன்னிக்கவும், மீண்டும் முயற்சி செய்யவும்";
-      };
-
-      tempImg.src = imageUrl;
     }
-  </script>
+
+    btn.disabled = true;
+    status.innerHTML = "படம் தயாராகிறது... காத்திருக்கவும்...";
+    imageArea.innerHTML = "";
+
+    const seed = Math.floor(Math.random() * 999999);
+
+    // Faster resolution (mobile optimized)
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true&ts=${Date.now()}`;
+
+    const img = new Image();
+    img.loading = "lazy";
+    img.src = imageUrl;
+
+    img.onload = function () {
+        status.innerHTML = "இதோ உங்கள் படம்:";
+        imageArea.appendChild(img);
+        btn.disabled = false;
+    };
+
+    img.onerror = function () {
+        status.innerHTML = "பிழை! மீண்டும் முயலவும்.";
+        btn.disabled = false;
+    };
+}
+</script>
+
 </body>
 </html>
