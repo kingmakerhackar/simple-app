@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>எனது சொந்த ஏஐ இமேஜ் மேக்கர்</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #121212; color: white; }
+        input { padding: 10px; width: 80%; border-radius: 5px; border: none; margin-bottom: 10px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        #result { margin-top: 20px; }
+        img { max-width: 100%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .loading { color: yellow; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h2>🎨 அன்லிமிட்டெட் ஏஐ இமேஜ் மேக்கர்</h2>
+    <p>எந்த கட்டுப்பாடும் இன்றி இமேஜ்களை உருவாக்கவும்.</p>
+    
+    <input type="text" id="prompt" placeholder="நீங்கள் உருவாக்க விரும்பும் படத்தை இங்கே டைப் செய்யவும்...">
+    <br>
+    <button onclick="generateImage()">உருவாக்கு (Generate)</button>
+
+    <div id="result">
+        <p id="status"></p>
+        <div id="imageContainer"></div>
+    </div>
+
+    <script>
+        function generateImage() {
+            const prompt = document.getElementById('prompt').value;
+            const status = document.getElementById('status');
+            const container = document.getElementById('imageContainer');
+            
+            if (!prompt) { alert("ஏதாவது டைப் செய்யுங்கள்!"); return; }
+
+            status.innerHTML = "<span class='loading'>படம் உருவாகிறது, சிறிது காத்திருக்கவும்...</span>";
+            container.innerHTML = "";
+
+            // Pollinations AI URL - இது தடையற்றது
+            const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random() * 1000000)}&nologo=true`;
+
+            const img = new Image();
+            img.src = imageUrl;
+            img.onload = function() {
+                status.innerHTML = "வெற்றி! இதோ உங்கள் படம்:";
+                container.appendChild(img);
+            };
+            img.onerror = function() {
+                status.innerHTML = "மன்னிக்கவும், படம் உருவாக்குவதில் பிழை!";
+            };
+        }
+    </script>
+</body>
+</html>
