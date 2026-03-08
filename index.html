@@ -6,35 +6,21 @@
 <title>BookChat</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0d0d0f;--surface:#16161a;--surface2:#1e1e24;
-  --border:#2a2a35;--border2:#333340;
-  --accent:#f59e0b;--accent2:#d97706;
-  --text:#f0f0f5;--muted:#888899;--teal:#2dd4bf;--rose:#fb7185;
-}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
-
-/* HEADER */
+:root{--bg:#0d0d0f;--surface:#16161a;--surface2:#1e1e24;--border:#2a2a35;--border2:#333340;--accent:#f59e0b;--accent2:#d97706;--text:#f0f0f5;--muted:#888899;--teal:#2dd4bf;--rose:#fb7185}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
 .header{display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:0.5rem}
 .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;color:#fff}
 .logo-text{font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,#f59e0b,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .header-right{display:flex;align-items:center;gap:0.6rem}
-.settings-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;gap:0.3rem}
-.steps{display:flex;gap:0.3rem;align-items:center}
+.steps{display:flex;gap:0.3rem}
 .step{width:10px;height:10px;border-radius:50%;background:var(--border2);transition:all 0.3s}
 .step.active{background:var(--accent)}
-.step.done{background:var(--teal)}
-
-/* PAGES */
-.pages{position:relative}
 .page{display:none;padding:1rem;min-height:calc(100vh - 60px)}
 .page.active{display:block}
 .page-title{font-size:1.1rem;font-weight:700;margin-bottom:0.2rem}
 .page-title span{color:var(--accent)}
 .page-sub{font-size:0.65rem;color:var(--muted);margin-bottom:1rem}
-
-/* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:0.8rem;overflow:hidden}
 .card-header{display:flex;align-items:center;gap:0.7rem;padding:0.7rem 0.9rem;cursor:pointer}
 .card-icon{width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
@@ -44,33 +30,23 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;mi
 textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:0.7rem;font-size:0.7rem;resize:vertical;min-height:100px;font-family:monospace;line-height:1.6}
 textarea:focus{outline:none;border-color:var(--accent)}
 .char-count{font-size:0.6rem;color:var(--muted);text-align:right;margin-top:0.3rem}
-input[type=file]{display:none}
-.file-label{display:block;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;font-size:0.65rem;color:var(--muted);transition:all 0.2s}
-.file-label:hover{border-color:var(--accent);color:var(--accent)}
-
-/* BUTTONS */
+.file-label{display:block;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;font-size:0.65rem;color:var(--muted)}
 .btn{display:flex;align-items:center;justify-content:center;gap:0.4rem;border:none;border-radius:10px;cursor:pointer;font-weight:600;transition:all 0.2s;font-family:inherit}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;padding:0.8rem 1.2rem;width:100%;font-size:0.8rem;margin-top:0.8rem}
-.btn-primary:hover{opacity:0.9}
 .btn-back{background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:0.6rem 1rem;font-size:0.7rem;margin-top:0.5rem}
 .btn-secondary{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:0.6rem 1rem;font-size:0.7rem}
 .btn-stop{background:rgba(251,113,133,0.1);border:1px solid rgba(251,113,133,0.3);color:var(--rose);padding:0.6rem 1rem;font-size:0.7rem}
-
-/* CHAT */
 .chat-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;height:320px;overflow-y:auto;padding:0.8rem;margin-bottom:0.8rem;display:flex;flex-direction:column;gap:0.6rem}
 .msg{padding:0.6rem 0.8rem;border-radius:10px;font-size:0.72rem;line-height:1.6;max-width:90%}
-.msg.user{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.1));border:1px solid rgba(245,158,11,0.2);align-self:flex-end;text-align:right}
+.msg.user{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.2);align-self:flex-end}
 .msg.ai{background:var(--surface2);border:1px solid var(--border2);align-self:flex-start}
-.msg.ai.err{background:rgba(251,113,133,0.08);border-color:rgba(251,113,133,0.2);color:var(--rose)}
+.msg.err{background:rgba(251,113,133,0.08);border-color:rgba(251,113,133,0.2);color:var(--rose)}
 .chat-input-row{display:flex;gap:0.5rem}
 .chat-input{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--text);padding:0.7rem;font-size:0.7rem;font-family:inherit}
 .chat-input:focus{outline:none;border-color:var(--accent)}
-.send-btn{background:var(--accent);border:none;border-radius:10px;color:#000;padding:0.7rem 1rem;cursor:pointer;font-size:1rem;font-weight:700}
-.source-preview{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.7rem;margin-bottom:0.8rem}
-.source-preview-label{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem}
-.source-preview-text{font-size:0.65rem;color:var(--text);max-height:80px;overflow:hidden;line-height:1.6}
-
-/* PAGE 3 - AUDIO */
+.send-btn{background:var(--accent);border:none;border-radius:10px;color:#000;padding:0.7rem 1rem;cursor:pointer;font-weight:700}
+.src-preview{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.7rem;margin-bottom:0.8rem;font-size:0.65rem}
+.src-label{font-size:0.55rem;color:var(--muted);text-transform:uppercase;margin-bottom:0.3rem}
 .mode-btns{display:flex;gap:0.5rem;margin-bottom:0.8rem;flex-wrap:wrap}
 .mode-btn{flex:1;min-width:80px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:0.5rem 0.4rem;text-align:center;cursor:pointer;font-size:0.6rem;color:var(--muted);transition:all 0.2s}
 .mode-btn.active{background:rgba(245,158,11,0.1);border-color:var(--accent);color:var(--accent)}
@@ -81,17 +57,13 @@ input[type=file]{display:none}
 .voice-name{font-size:0.7rem;font-weight:600}
 .voice-desc{font-size:0.58rem;color:var(--muted);margin-top:0.1rem}
 .voice-check{margin-left:auto;color:var(--accent);font-size:1rem}
-
-/* LOADING */
 .loading{display:none;text-align:center;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:0.8rem}
 .loading.show{display:block}
 .bars{display:flex;gap:4px;justify-content:center;align-items:flex-end;height:28px;margin-bottom:0.5rem}
-.bar{width:4px;background:var(--accent);border-radius:2px;animation:audioBar 0.7s ease-in-out infinite}
+.bar{width:4px;background:var(--accent);border-radius:2px;animation:ab 0.7s ease-in-out infinite}
 .bar:nth-child(2){animation-delay:.1s}.bar:nth-child(3){animation-delay:.2s}.bar:nth-child(4){animation-delay:.3s}.bar:nth-child(5){animation-delay:.4s}
-@keyframes audioBar{0%,100%{height:6px}50%{height:24px}}
+@keyframes ab{0%,100%{height:6px}50%{height:24px}}
 .loading-text{font-size:0.65rem;color:var(--muted)}
-
-/* AUDIO OUTPUT */
 .audio-out{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.8rem;margin-bottom:0.8rem}
 .audio-out.show{display:block}
 .audio-header{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem}
@@ -100,41 +72,22 @@ input[type=file]{display:none}
 .script-lines{max-height:200px;overflow-y:auto;margin-bottom:0.8rem}
 .script-line{font-size:0.65rem;line-height:1.8;padding:0.3rem 0;border-bottom:1px solid var(--border)}
 .script-line:last-child{border:none}
-.script-line.stage{color:var(--muted);font-style:italic}
+.stage{color:var(--muted);font-style:italic}
 .char-name{color:var(--accent)}
 .audio-btns{display:flex;gap:0.5rem;flex-wrap:wrap}
-
-/* ERROR */
 .err-toast{background:rgba(251,113,133,0.08);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:0.6rem 0.8rem;font-size:0.65rem;color:var(--rose);margin-bottom:0.6rem;display:none}
 .err-toast.show{display:block}
-
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:1rem}
-.modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;width:100%;max-width:400px}
-.modal-title{font-size:1rem;font-weight:800;margin-bottom:0.3rem}
-.modal-sub{font-size:0.6rem;color:var(--muted);margin-bottom:1rem}
-.field-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.3rem}
-.field-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:0.6rem 0.8rem;font-size:0.7rem;margin-bottom:0.3rem}
-.field-input:focus{outline:none;border-color:var(--accent)}
-.key-status{font-size:0.6rem;margin-bottom:0.8rem}
-.key-status.ok{color:var(--teal)}
-.key-status.miss{color:var(--rose)}
-.modal-save{width:100%;background:var(--accent);border:none;border-radius:8px;padding:0.7rem;color:#000;font-weight:700;cursor:pointer;font-size:0.75rem;margin-top:0.5rem}
-.modal-close-btn{position:absolute;top:0.8rem;right:0.8rem;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.8rem}
-.modal{position:relative}
+.opt-label{margin-bottom:0.5rem;font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="logo">
     <div class="logo-icon">BC</div>
     <div class="logo-text">BookChat</div>
   </div>
   <div class="header-right">
-    <button class="settings-btn" onclick="BC.openSettings()">⚙ Settings</button>
     <div class="steps">
       <div class="step active" id="s1"></div>
       <div class="step" id="s2"></div>
@@ -143,38 +96,32 @@ input[type=file]{display:none}
   </div>
 </div>
 
-<!-- PAGES -->
-<div class="pages">
-
 <!-- PAGE 1 -->
 <div class="page active" id="page1">
   <div class="page-title">உங்கள் <span>Source</span> கொடுங்க</div>
-  <div class="page-sub">Text, Document — எதுவேணும்னாலும்</div>
-
+  <div class="page-sub">Text அல்லது Document — எதுவேணும்னாலும்</div>
   <div class="card">
     <div class="card-header" onclick="BC.toggleCard('text')">
       <div class="card-icon">✍️</div>
       <div><div class="card-title">Text / Source Code</div><div class="card-sub">paste பண்ணுங்க</div></div>
-      <div style="margin-left:auto;color:var(--muted)">▲</div>
+      <div style="margin-left:auto;color:var(--muted)" id="arr-text">▲</div>
     </div>
     <div class="card-body" id="card-text">
-      <textarea id="mainText" rows="6" placeholder="// உங்கள் text இங்கே paste பண்ணுங்க..."></textarea>
+      <textarea id="mainText" rows="6" placeholder="இங்கே text paste பண்ணுங்க..."></textarea>
       <div class="char-count"><span id="charCount">0</span> chars</div>
     </div>
   </div>
-
   <div class="card">
     <div class="card-header" onclick="BC.toggleCard('doc')">
       <div class="card-icon">📄</div>
-      <div><div class="card-title">Document Upload</div><div class="card-sub">PDF, TXT, MD, JS, PY எல்லா வகையும்</div></div>
-      <div style="margin-left:auto;color:var(--muted)">▼</div>
+      <div><div class="card-title">Document Upload</div><div class="card-sub">TXT, MD, JS, PY எல்லா வகையும்</div></div>
+      <div style="margin-left:auto;color:var(--muted)" id="arr-doc">▼</div>
     </div>
     <div class="card-body" id="card-doc" style="display:none">
       <label class="file-label" for="fileInput">📁 File தேர்வு பண்ணுங்க</label>
       <input type="file" id="fileInput" accept=".txt,.md,.js,.py,.html,.css,.json,.csv" onchange="BC.loadFile(event)"/>
     </div>
   </div>
-
   <button class="btn btn-primary" onclick="BC.goTo(2)">Chat-க்கு போ →</button>
 </div>
 
@@ -182,24 +129,20 @@ input[type=file]{display:none}
 <div class="page" id="page2">
   <div class="page-title"><span>Chat</span> பண்ணுங்க</div>
   <div class="page-sub">உங்கள் content பத்தி எந்த கேள்வியும் கேளுங்க</div>
-
-  <div class="source-preview">
-    <div class="source-preview-label">📋 உங்கள் SOURCE CONTENT · <span id="srcLen">0</span> chars</div>
-    <div class="source-preview-text" id="srcPreview"></div>
+  <div class="src-preview">
+    <div class="src-label">📋 SOURCE · <span id="srcLen">0</span> chars</div>
+    <div id="srcPreview" style="font-size:0.65rem;max-height:60px;overflow:hidden;line-height:1.6"></div>
   </div>
-
   <div class="chat-box" id="chatBox">
-    <div class="msg ai">உங்கள் source code ready! இப்போ என்ன கேள்வி வேணும்னாலும் கேளுங்க — தமிழிலோ English-லோ. 😊</div>
+    <div class="msg ai">உங்கள் content ready! என்ன கேள்வி வேணும்னாலும் கேளுங்க 😊</div>
   </div>
-
   <div class="chat-input-row">
-    <input class="chat-input" id="chatInput" placeholder="உங்கள் கேள்வி இங்கே..." onkeypress="if(event.key==='Enter')BC.sendChat()"/>
+    <input class="chat-input" id="chatInput" placeholder="உங்கள் கேள்வி..." onkeypress="if(event.key==='Enter')BC.sendChat()"/>
     <button class="send-btn" onclick="BC.sendChat()">▶</button>
   </div>
-
   <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
     <button class="btn btn-back" onclick="BC.goTo(1)">← திரும்பு</button>
-    <button class="btn btn-primary" style="flex:1" onclick="BC.goTo(3)">Audio உருவாக்கு →</button>
+    <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="BC.goTo(3)">Audio உருவாக்கு →</button>
   </div>
 </div>
 
@@ -207,22 +150,19 @@ input[type=file]{display:none}
 <div class="page" id="page3">
   <div class="page-title"><span>Audio</span> உருவாக்கு</div>
   <div class="page-sub">உங்கள் content-ஐ audio story-ஆக மாத்துங்க</div>
-
-  <div style="margin-bottom:0.5rem;font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">மொழி தேர்வு</div>
-  <div class="mode-btns" id="langBtns">
+  <div class="opt-label">மொழி தேர்வு</div>
+  <div class="mode-btns">
     <div class="mode-btn active" data-val="tamil" onclick="BC.selectOpt('lang',this)">தமிழ்</div>
     <div class="mode-btn" data-val="english" onclick="BC.selectOpt('lang',this)">English</div>
     <div class="mode-btn" data-val="both" onclick="BC.selectOpt('lang',this)">Mixed</div>
   </div>
-
-  <div style="margin-bottom:0.5rem;font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">நீளம்</div>
-  <div class="mode-btns" id="lenBtns">
+  <div class="opt-label">நீளம்</div>
+  <div class="mode-btns">
     <div class="mode-btn active" data-val="short" onclick="BC.selectOpt('len',this)">Short</div>
     <div class="mode-btn" data-val="medium" onclick="BC.selectOpt('len',this)">Medium</div>
     <div class="mode-btn" data-val="long" onclick="BC.selectOpt('len',this)">Long</div>
   </div>
-
-  <div style="margin-bottom:0.5rem;font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Voice Style</div>
+  <div class="opt-label">Voice Style</div>
   <div class="voice-cards">
     <div class="voice-card active" data-val="solo" onclick="BC.selectOpt('voice',this)">
       <div class="voice-emoji">🎤</div>
@@ -240,10 +180,11 @@ input[type=file]{display:none}
       <div class="voice-check"></div>
     </div>
   </div>
-
   <div class="err-toast" id="audioErr"></div>
-  <div class="loading" id="loading"><div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div class="loading-text" id="loadTxt">Script உருவாக்குகிறோம்...</div></div>
-
+  <div class="loading" id="loading">
+    <div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+    <div class="loading-text">Script உருவாக்குகிறோம்...</div>
+  </div>
   <div class="audio-out" id="audioOut">
     <div class="audio-header">
       <div style="font-size:1.4rem" id="outEmoji">🎤</div>
@@ -257,291 +198,181 @@ input[type=file]{display:none}
       <button class="btn btn-secondary" onclick="BC.downloadScript()">⬇</button>
     </div>
   </div>
-
   <button class="btn btn-primary" id="genBtn" onclick="BC.generateAudio()">🎙️ Generate Audio</button>
   <button class="btn btn-back" onclick="BC.goTo(2)">← திரும்பு</button>
 </div>
 
-</div><!-- end pages -->
-
-<!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="settingsModal">
-  <div class="modal">
-    <button class="modal-close-btn" onclick="BC.closeSettings()">✕</button>
-    <div class="modal-title">⚙️ Settings</div>
-    <div class="modal-sub">Gemini API Key இங்கே save பண்ணுங்க</div>
-    <div class="field-label">GEMINI API KEY (FREE)</div>
-    <input type="password" class="field-input" id="geminiKeyInput" placeholder="AIzaSy..."/>
-    <div class="key-status ok" id="keyStatus">✓ Built-in key ready</div>
-    <button class="modal-save" onclick="BC.saveSettings()">Save</button>
-  </div>
-</div>
-
 <script>
 const BC = (() => {
-  const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-  const DEFAULT_KEY = 'AIzaSyDuODOGehAXge3kM6MCSgSRVIhxwvAJMqY';
-
-  const state = {
-    text: '',
-    lang: 'tamil',
-    len: 'short',
-    voice: 'solo',
-    history: [],
-    script: null
-  };
-
+  const BACKEND = '';  // Same server — relative URL
+  const state = { text:'', lang:'tamil', len:'short', voice:'solo', history:[], script:null };
   let stopped = false;
 
-  // --- NAV ---
   function goTo(n) {
-    if (n === 2) {
+    if (n >= 2) {
       state.text = document.getElementById('mainText').value.trim();
       if (!state.text) { alert('முதல்ல content போடுங்க!'); return; }
+    }
+    if (n === 2) {
       document.getElementById('srcLen').textContent = state.text.length;
-      document.getElementById('srcPreview').textContent = state.text.slice(0, 200) + (state.text.length > 200 ? '...' : '');
+      document.getElementById('srcPreview').textContent = state.text.slice(0,200) + (state.text.length>200?'...':'');
     }
     if (n === 3) {
-      state.text = document.getElementById('mainText').value.trim();
       document.getElementById('genBtn').style.display = 'flex';
       document.getElementById('genBtn').textContent = '🎙️ Generate Audio';
       document.getElementById('audioOut').classList.remove('show');
       document.getElementById('audioErr').classList.remove('show');
     }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page' + n).classList.add('active');
-    ['s1','s2','s3'].forEach((id, i) => {
-      document.getElementById(id).className = 'step' + (i < n ? ' active' : '');
-    });
+    document.getElementById('page'+n).classList.add('active');
+    ['s1','s2','s3'].forEach((id,i) => { document.getElementById(id).className='step'+(i<n?' active':''); });
   }
 
-  // --- CARD TOGGLE ---
-  function toggleCard(type) {
-    const body = document.getElementById('card-' + type);
-    const showing = body.style.display !== 'none';
-    body.style.display = showing ? 'none' : 'block';
+  function toggleCard(t) {
+    const b = document.getElementById('card-'+t);
+    const a = document.getElementById('arr-'+t);
+    const showing = b.style.display !== 'none';
+    b.style.display = showing ? 'none' : 'block';
+    if (a) a.textContent = showing ? '▼' : '▲';
   }
 
-  // --- FILE ---
   function loadFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]; if (!file) return;
     const r = new FileReader();
-    r.onload = ev => {
-      document.getElementById('mainText').value = ev.target.result;
-      document.getElementById('charCount').textContent = ev.target.result.length;
-    };
+    r.onload = ev => { document.getElementById('mainText').value = ev.target.result; document.getElementById('charCount').textContent = ev.target.result.length; };
     r.readAsText(file);
   }
 
-  // --- CHAR COUNT ---
-  document.getElementById('mainText').addEventListener('input', e => {
-    document.getElementById('charCount').textContent = e.target.value.length;
-  });
+  document.getElementById('mainText').addEventListener('input', e => { document.getElementById('charCount').textContent = e.target.value.length; });
 
-  // --- OPTIONS ---
   function selectOpt(type, el) {
     if (type === 'voice') {
-      document.querySelectorAll('.voice-card').forEach(c => { c.classList.remove('active'); c.querySelector('.voice-check').textContent = ''; });
-      el.classList.add('active');
-      el.querySelector('.voice-check').textContent = '✓';
+      document.querySelectorAll('.voice-card').forEach(c => { c.classList.remove('active'); c.querySelector('.voice-check').textContent=''; });
+      el.classList.add('active'); el.querySelector('.voice-check').textContent='✓';
       state.voice = el.dataset.val;
     } else {
-      const group = type === 'lang' ? '.mode-btn[onclick*="lang"]' : '.mode-btn[onclick*="len"]';
-      document.querySelectorAll(group).forEach(b => b.classList.remove('active'));
+      const sel = type==='lang' ? '[onclick*="lang"]' : '[onclick*="len"]';
+      document.querySelectorAll('.mode-btn'+sel).forEach(b => b.classList.remove('active'));
       el.classList.add('active');
-      if (type === 'lang') state.lang = el.dataset.val;
-      else state.len = el.dataset.val;
+      if (type==='lang') state.lang=el.dataset.val; else state.len=el.dataset.val;
     }
   }
 
-  // --- GEMINI ---
-  async function gemini(system, msg, history = []) {
-    const key = localStorage.getItem('geminiKey') || DEFAULT_KEY;
-    const contents = history.slice(-10).map(h => ({
-      role: h.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: h.content }]
-    }));
-    contents.push({ role: 'user', parts: [{ text: msg }] });
-    const res = await fetch(`${GEMINI_URL}?key=${key}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: system }] },
-        contents,
-        generationConfig: { maxOutputTokens: 1500 }
-      })
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Gemini Error'); }
-    const d = await res.json();
-    return d.candidates[0].content.parts[0].text;
+  async function api(path, body) {
+    const res = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    if (!res.ok) { const e=await res.json(); throw new Error(e.detail||'Server Error'); }
+    return res.json();
   }
 
-  // --- CHAT ---
   async function sendChat() {
     const inp = document.getElementById('chatInput');
-    const q = inp.value.trim();
-    if (!q) return;
+    const q = inp.value.trim(); if (!q) return;
     inp.value = '';
     const box = document.getElementById('chatBox');
     box.innerHTML += `<div class="msg user">${q}</div>`;
     box.scrollTop = 9999;
     try {
-      const ans = await gemini(
-        `You help answer questions about content. Reply in Tamil if asked in Tamil, English if asked in English.\n\nCONTENT:\n${state.text.slice(0, 5000)}`,
-        q, state.history
-      );
-      state.history.push({ role: 'user', content: q }, { role: 'assistant', content: ans });
+      const d = await api('/chat', { source_text: state.text, question: q, history: state.history });
+      state.history.push({role:'user',content:q},{role:'assistant',content:d.answer});
       state.history = state.history.slice(-20);
-      box.innerHTML += `<div class="msg ai">${ans}</div>`;
+      box.innerHTML += `<div class="msg ai">${d.answer}</div>`;
     } catch(err) {
       box.innerHTML += `<div class="msg ai err">⚠ ${err.message}</div>`;
     }
     box.scrollTop = 9999;
   }
 
-  // --- GENERATE SCRIPT ---
   async function generateAudio() {
-    if (!state.text.trim()) { showErr('Content இல்ல! Page 1-ல் text போடுங்க.'); return; }
-    document.getElementById('genBtn').style.display = 'none';
+    if (!state.text.trim()) { showErr('Content இல்ல!'); return; }
+    document.getElementById('genBtn').style.display='none';
     document.getElementById('loading').classList.add('show');
     document.getElementById('audioOut').classList.remove('show');
     showErr('');
-
-    const langMap = { tamil: 'Tamil', english: 'English', both: 'Tamil and English mixed' };
-    const lenMap = { short: '2-3 min', medium: '4-6 min', long: '8-10 min' };
-    let fmt = '';
-    if (state.voice === 'solo') fmt = 'JSON: {"type":"solo","title":"...","paragraphs":["..."]}';
-    else if (state.voice === 'duo') fmt = 'JSON: {"type":"duo","title":"...","lines":[{"speaker":"Arjun","text":"..."},{"speaker":"Priya","text":"..."}]}';
-    else fmt = 'JSON: {"type":"drama","title":"...","scene":"...","lines":[{"character":"NAME","dialogue":"...","isStage":false}]}';
-
     try {
-      const raw = await gemini(
-        'You are a script writer. Return ONLY valid JSON, no extra text.',
-        `Convert to ${state.voice} audio script. Language: ${langMap[state.lang]}. Length: ${lenMap[state.len]}.\nCONTENT: ${state.text.slice(0,4000)}\nReturn ${fmt}`
-      );
-      let clean = raw.trim().replace(/^```json/,'').replace(/^```/,'').replace(/```$/,'').trim();
-      state.script = JSON.parse(clean);
+      const d = await api('/generate-script', { source_text:state.text, lang:state.lang, length:state.len, style:state.voice });
+      state.script = d.script;
       renderScript();
       document.getElementById('audioOut').classList.add('show');
-      document.getElementById('genBtn').style.display = 'flex';
-      document.getElementById('genBtn').textContent = '↺ மீண்டும் உருவாக்கு';
+      document.getElementById('genBtn').style.display='flex';
+      document.getElementById('genBtn').textContent='↺ மீண்டும் உருவாக்கு';
     } catch(err) {
-      showErr('⚠ ' + err.message);
-      document.getElementById('genBtn').style.display = 'flex';
+      showErr('⚠ '+err.message);
+      document.getElementById('genBtn').style.display='flex';
     }
     document.getElementById('loading').classList.remove('show');
   }
 
   function renderScript() {
-    const s = state.script;
-    if (!s) return;
-    document.getElementById('outTitle').textContent = s.title || 'BookChat Audio';
-    document.getElementById('outMode').textContent = (s.type || 'solo').toUpperCase() + ' MODE';
-    document.getElementById('outEmoji').textContent = s.type === 'solo' ? '🎤' : s.type === 'duo' ? '🎙️' : '🎭';
-    let html = '';
-    if (s.type === 'solo') {
-      (s.paragraphs || []).forEach(p => { html += `<div class="script-line">${p}</div>`; });
-    } else if (s.type === 'duo') {
-      (s.lines || []).forEach(l => { html += `<div class="script-line"><b class="char-name">${l.speaker}:</b> ${l.text}</div>`; });
-    } else {
-      if (s.scene) html += `<div class="script-line stage">[${s.scene}]</div>`;
-      (s.lines || []).forEach(l => {
-        if (l.isStage) html += `<div class="script-line stage">[${l.dialogue}]</div>`;
-        else html += `<div class="script-line"><b class="char-name">${l.character}:</b> ${l.dialogue}</div>`;
-      });
-    }
-    document.getElementById('scriptLines').innerHTML = html;
+    const s = state.script; if (!s) return;
+    document.getElementById('outTitle').textContent = s.title||'BookChat Audio';
+    document.getElementById('outMode').textContent = (s.type||'solo').toUpperCase()+' MODE';
+    document.getElementById('outEmoji').textContent = s.type==='solo'?'🎤':s.type==='duo'?'🎙️':'🎭';
+    let html='';
+    if (s.type==='solo') (s.paragraphs||[]).forEach(p=>{html+=`<div class="script-line">${p}</div>`;});
+    else if (s.type==='duo') (s.lines||[]).forEach(l=>{html+=`<div class="script-line"><b class="char-name">${l.speaker}:</b> ${l.text}</div>`;});
+    else { if(s.scene)html+=`<div class="script-line stage">[${s.scene}]</div>`; (s.lines||[]).forEach(l=>{html+=l.isStage?`<div class="script-line stage">[${l.dialogue}]</div>`:`<div class="script-line"><b class="char-name">${l.character}:</b> ${l.dialogue}</div>`;});}
+    document.getElementById('scriptLines').innerHTML=html;
   }
 
-  // --- AUDIO ---
   async function playAudio() {
     if (!state.script) return;
-    stopped = false;
-    document.getElementById('playBtn').style.display = 'none';
-    document.getElementById('stopBtn').style.display = 'flex';
-
-    const segs = getSegments();
-    for (const seg of segs) {
-      if (stopped) break;
-      await speak(seg.text);
-    }
-    document.getElementById('playBtn').style.display = 'flex';
-    document.getElementById('stopBtn').style.display = 'none';
+    stopped=false;
+    document.getElementById('playBtn').style.display='none';
+    document.getElementById('stopBtn').style.display='flex';
+    const segs=getSegs();
+    for(const s of segs){ if(stopped)break; await speak(s); }
+    document.getElementById('playBtn').style.display='flex';
+    document.getElementById('stopBtn').style.display='none';
   }
 
-  function getSegments() {
-    const s = state.script;
-    if (!s) return [];
-    if (s.type === 'solo') return (s.paragraphs || []).map(p => ({ text: p }));
-    if (s.type === 'duo') return (s.lines || []).map(l => ({ text: l.text }));
-    return (s.lines || []).filter(l => !l.isStage).map(l => ({ text: l.dialogue }));
+  function getSegs() {
+    const s=state.script; if(!s)return[];
+    if(s.type==='solo')return(s.paragraphs||[]).map(p=>p);
+    if(s.type==='duo')return(s.lines||[]).map(l=>l.text);
+    return(s.lines||[]).filter(l=>!l.isStage).map(l=>l.dialogue);
   }
 
   function speak(text) {
-    return new Promise(resolve => {
-      if (stopped || !text.trim()) { resolve(); return; }
-      if (!('speechSynthesis' in window)) { resolve(); return; }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = state.lang === 'english' ? 'en-IN' : 'ta-IN';
-      u.rate = 0.9;
-      u.onend = resolve;
-      u.onerror = resolve;
+    return new Promise(resolve=>{
+      if(stopped||!text.trim()){resolve();return;}
+      if(!('speechSynthesis'in window)){resolve();return;}
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang=state.lang==='english'?'en-IN':'ta-IN';
+      u.rate=0.9; u.onend=resolve; u.onerror=resolve;
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(u);
     });
   }
 
   function stopAudio() {
-    stopped = true;
-    window.speechSynthesis && window.speechSynthesis.cancel();
-    document.getElementById('playBtn').style.display = 'flex';
-    document.getElementById('stopBtn').style.display = 'none';
+    stopped=true;
+    window.speechSynthesis&&window.speechSynthesis.cancel();
+    document.getElementById('playBtn').style.display='flex';
+    document.getElementById('stopBtn').style.display='none';
   }
 
   function regenAudio() {
-    stopAudio();
-    state.script = null;
+    stopAudio(); state.script=null;
     document.getElementById('audioOut').classList.remove('show');
-    document.getElementById('genBtn').style.display = 'flex';
-    document.getElementById('genBtn').textContent = '🎙️ Generate Audio';
+    document.getElementById('genBtn').style.display='flex';
+    document.getElementById('genBtn').textContent='🎙️ Generate Audio';
   }
 
   function downloadScript() {
-    if (!state.script) return;
-    const s = state.script;
-    let txt = (s.title || 'Script') + '\n\n';
-    if (s.type === 'solo') txt += (s.paragraphs || []).join('\n\n');
-    else if (s.type === 'duo') txt += (s.lines || []).map(l => l.speaker + ': ' + l.text).join('\n');
-    else txt += (s.lines || []).map(l => l.isStage ? '['+l.dialogue+']' : l.character+': '+l.dialogue).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'}));
-    a.download = 'bookchat.txt';
-    a.click();
+    if(!state.script)return;
+    const s=state.script;
+    let txt=(s.title||'Script')+'\n\n';
+    if(s.type==='solo')txt+=(s.paragraphs||[]).join('\n\n');
+    else if(s.type==='duo')txt+=(s.lines||[]).map(l=>l.speaker+': '+l.text).join('\n');
+    else txt+=(s.lines||[]).map(l=>l.isStage?'['+l.dialogue+']':l.character+': '+l.dialogue).join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+    a.download='bookchat.txt'; a.click();
   }
 
-  // --- SETTINGS ---
-  function openSettings() {
-    document.getElementById('geminiKeyInput').value = localStorage.getItem('geminiKey') || '';
-    document.getElementById('settingsModal').classList.add('open');
-  }
-  function closeSettings() {
-    document.getElementById('settingsModal').classList.remove('open');
-  }
-  function saveSettings() {
-    const v = document.getElementById('geminiKeyInput').value.trim();
-    if (v) localStorage.setItem('geminiKey', v);
-    closeSettings();
-  }
+  function showErr(msg){const el=document.getElementById('audioErr');el.textContent=msg;el.classList.toggle('show',!!msg);}
 
-  // --- HELPERS ---
-  function showErr(msg) {
-    const el = document.getElementById('audioErr');
-    el.textContent = msg;
-    el.classList.toggle('show', !!msg);
-  }
-
-  return { goTo, toggleCard, loadFile, selectOpt, sendChat, generateAudio, playAudio, stopAudio, regenAudio, downloadScript, openSettings, closeSettings, saveSettings };
+  return {goTo,toggleCard,loadFile,selectOpt,sendChat,generateAudio,playAudio,stopAudio,regenAudio,downloadScript};
 })();
 </script>
 </body>
