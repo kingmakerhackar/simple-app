@@ -1139,6 +1139,13 @@ async function goToPage2() {
 
 function goToPage3() {
   goTo(3);
+  // Reset page 3 state
+  const gb = document.getElementById('generateBtn');
+  const gl = document.getElementById('genLoading');
+  const ao = document.getElementById('audioOutput');
+  if (gb) { gb.style.display = 'flex'; gb.innerHTML = '🎙️ Generate Audio'; }
+  if (gl) gl.classList.remove('visible');
+  if (ao) ao.classList.remove('visible');
 }
 
 // ===== CLAUDE API =====
@@ -1248,7 +1255,7 @@ async function generateAudio() {
   const key = localStorage.getItem('claudeKey');
   if (!key) { showError('audioError', 'API Key இல்ல! Settings-ல் போடுங்க.'); return; }
 
-  document.getElementById('generateBtn').style.display = 'none';
+  document.getElementById('generateBtn').style.display = 'none'; // hide while generating
   document.getElementById('audioOutput').classList.remove('visible');
   showLoading(true, 'Script உருவாக்குகிறோம்...');
 
@@ -1617,6 +1624,7 @@ function updatePlayUI(playing) {
   if (pb) { pb.style.display = playing ? 'none' : 'flex'; pb.innerHTML = '▶ Play'; }
   if (sb) sb.style.display = playing ? 'flex' : 'none';
   if (pi) pi.style.display = playing ? 'flex' : 'none';
+  // Never hide genLoading here — generateAudio controls it
 }
 
 // Android Chrome TTS keepalive (prevents cutting off after ~15 sec)
