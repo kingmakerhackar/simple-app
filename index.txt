@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BookChat — புத்தகம் கேளுங்க</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #1a1a24;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --accent: #f59e0b;
+  --accent2: #fbbf24;
+  --teal: #fb923c;
+  --rose: #fb7185;
+  --amber: #fbbf24;
+  --text: #e8e8f0;
+  --muted: #6b6b80;
+  --muted2: #9898b0;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* BG mesh */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,106,247,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 80%, rgba(45,212,191,0.05) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
+
+/* ===== PAGE SYSTEM ===== */
+.page { display:none; min-height:100vh; position:relative; z-index:1; }
+.page.active { display:flex; flex-direction:column; animation: pageIn 0.4s ease; }
+@keyframes pageIn {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ===== TOPBAR ===== */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,10,15,0.8);
+  backdrop-filter: blur(12px);
+  position:sticky; top:0; z-index:100;
+}
+
+.logo {
+  display:flex; align-items:center; gap:0.6rem;
+}
+
+.logo-hex {
+  width:32px; height:32px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; font-weight:700; color:#fff;
+  background: linear-gradient(135deg, #f59e0b, #ef4444) !important;
+}
+
+.logo-name {
+  font-family:'Syne', sans-serif;
+  font-weight:800; font-size:1.1rem;
+  background: linear-gradient(90deg, #fbbf24, #f87171);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+
+.topbar-right { display:flex; align-items:center; gap:0.8rem; }
+
+.settings-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius:8px;
+  padding:0.4rem 0.8rem;
+  color: var(--muted2);
+  font-family:'DM Mono',monospace;
+  font-size:0.65rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  letter-spacing:0.05em;
+}
+.settings-btn:hover { border-color:var(--accent); color:var(--accent2); }
+
+.step-indicator {
+  display:flex; gap:0.4rem; align-items:center;
+}
+.step-dot {
+  width:6px; height:6px; border-radius:50%;
+  background: var(--surface2); border:1px solid var(--border2);
+  transition:all 0.3s;
+}
+.step-dot.done { background:var(--teal); border-color:var(--teal); }
+.step-dot.active { background:var(--accent); border-color:var(--accent); width:18px; border-radius:3px; }
+
+/* ===== CONTENT ===== */
+.content { flex:1; padding:1.5rem; max-width:680px; margin:0 auto; width:100%; }
+
+.page-title {
+  font-family:'Instrument Serif', serif;
+  font-size:1.7rem;
+  line-height:1.2;
+  margin-bottom:0.4rem;
+  color:#fff;
+}
+.page-title span { color:var(--accent2); font-style:italic; }
+
+.page-sub {
+  font-size:0.62rem;
+  color:var(--muted);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:2rem;
+}
+
+/* ===== INPUT CARDS ===== */
+.input-cards { display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1.5rem; }
+
+.input-card {
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  transition:all 0.25s;
+}
+
+.input-card-header {
+  display:flex; align-items:center; gap:0.8rem;
+  padding:0.9rem 1.2rem;
+  cursor:pointer;
+  user-select:none;
+}
+
+.input-card-header:hover { background:rgba(255,255,255,0.02); }
+
+.card-icon {
+  width:36px; height:36px;
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; flex-shrink:0;
+}
+
+.icon-text { background:rgba(124,106,247,0.15); }
+.icon-doc  { background:rgba(45,212,191,0.12); }
+.icon-link { background:rgba(251,191,36,0.12); }
+
+.card-info { flex:1; }
+.card-title {
+  font-family:'Syne',sans-serif;
+  font-size:0.8rem; font-weight:700;
+  color:var(--text);
+  margin-bottom:0.1rem;
+}
+.card-desc { font-size:0.58rem; color:var(--muted); }
+
+.card-toggle {
+  font-size:0.7rem; color:var(--muted);
+  transition:transform 0.2s;
+}
+.input-card.open .card-toggle { transform:rotate(180deg); }
+
+.card-body {
+  display:none;
+  padding:0 1.2rem 1.2rem;
+  border-top:1px solid var(--border);
+}
+.input-card.open .card-body { display:block; }
+
+textarea, input[type="text"], input[type="password"], input[type="url"] {
+  width:100%;
+  background: rgba(255,255,255,0.03);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:0.8rem;
+  color:var(--text);
+  font-family:'DM Mono',monospace;
+  font-size:0.65rem;
+  line-height:1.8;
+  resize:vertical;
+  outline:none;
+  transition:border-color 0.2s;
+  margin-top:0.8rem;
+}
+textarea:focus, input:focus { border-color:var(--accent); }
+textarea::placeholder, input::placeholder { color:var(--muted); }
+
+/* File drop */
+.file-drop {
+  margin-top:0.8rem;
+  border:1px dashed var(--border2);
+  border-radius:8px;
+  padding:1.5rem;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.file-drop:hover, .file-drop.dragover {
+  border-color:var(--accent);
+  background:rgba(124,106,247,0.05);
+}
+.file-drop-icon { font-size:1.5rem; margin-bottom:0.4rem; }
+.file-drop-text { font-size:0.6rem; color:var(--muted); line-height:1.8; }
+.file-drop-text strong { color:var(--accent2); display:block; margin-bottom:0.2rem; }
+
+.file-items { display:flex; flex-direction:column; gap:0.4rem; margin-top:0.6rem; }
+.file-item {
+  display:flex; align-items:center; gap:0.6rem;
+  background:rgba(45,212,191,0.06);
+  border:1px solid rgba(45,212,191,0.15);
+  border-radius:6px; padding:0.5rem 0.8rem;
+  font-size:0.6rem;
+}
+.file-item-name { flex:1; color:var(--teal); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-item-rm { color:var(--rose); cursor:pointer; padding:0.1rem 0.3rem; }
+
+/* ===== NEXT BTN ===== */
+.next-btn {
+  width:100%;
+  background: linear-gradient(135deg, var(--accent), #5b4fd4);
+  border:none;
+  border-radius:12px;
+  padding:1rem;
+  color:#fff;
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:0.85rem;
+  letter-spacing:0.05em;
+  cursor:pointer;
+  transition:all 0.25s;
+  display:flex; align-items:center; justify-content:center; gap:0.6rem;
+  margin-top:1rem;
+}
+.next-btn:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(124,106,247,0.3); }
+.next-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.back-btn {
+  background:transparent;
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:0.6rem 1.2rem;
+  color:var(--muted2);
+  font-family:'DM Mono',monospace;
+  font-size:0.65rem;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.back-btn:hover { border-color:var(--accent); color:var(--accent2); }
+
+/* ===== PAGE 2: REVIEW ===== */
+.source-preview {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:1.2rem;
+}
+
+.source-preview-header {
+  padding:0.7rem 1.2rem;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:0.6rem;
+  background:var(--surface2);
+}
+
+.source-preview-label {
+  font-size:0.58rem; text-transform:uppercase;
+  letter-spacing:0.15em; color:var(--muted);
+  flex:1;
+}
+
+.source-chars {
+  font-size:0.58rem; color:var(--accent2);
+  background:rgba(124,106,247,0.1);
+  padding:0.15rem 0.5rem; border-radius:20px;
+}
+
+.source-text {
+  padding:1rem 1.2rem;
+  font-size:0.62rem;
+  line-height:1.9;
+  color:var(--muted2);
+  max-height:150px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* Chat box */
+.chat-container {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  min-height:300px;
+  margin-bottom:1.2rem;
+}
+
+.chat-messages {
+  flex:1;
+  padding:1rem;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:0.8rem;
+  min-height:200px;
+  max-height:300px;
+}
+
+.chat-msg {
+  display:flex; gap:0.6rem; align-items:flex-start;
+  animation: msgIn 0.3s ease;
+}
+@keyframes msgIn {
+  from { opacity:0; transform:translateY(6px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.msg-avatar {
+  width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; flex-shrink:0;
+  font-weight:600;
+}
+.msg-avatar.user { background:rgba(124,106,247,0.2); color:var(--accent2); border:1px solid rgba(124,106,247,0.3); }
+.msg-avatar.ai   { background:rgba(45,212,191,0.15); color:var(--teal); border:1px solid rgba(45,212,191,0.25); }
+
+.msg-bubble {
+  flex:1; padding:0.7rem 0.9rem;
+  border-radius:0 10px 10px 10px;
+  font-size:0.68rem; line-height:1.7;
+}
+.msg-bubble.user { background:rgba(124,106,247,0.08); border:1px solid rgba(124,106,247,0.15); }
+.msg-bubble.ai   { background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.12); font-family:'Instrument Serif',serif; font-size:0.85rem; }
+
+.chat-input-row {
+  display:flex; gap:0.6rem;
+  padding:0.8rem;
+  border-top:1px solid var(--border);
+  background:var(--surface2);
+}
+
+.chat-input {
+  flex:1;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:0.6rem 0.9rem;
+  color:var(--text);
+  font-family:'DM Mono',monospace;
+  font-size:0.65rem;
+  outline:none;
+  resize:none;
+  margin:0;
+}
+
+.send-btn {
+  background: var(--accent);
+  border:none; border-radius:8px;
+  padding:0.6rem 1rem;
+  color:#fff;
+  font-size:0.8rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  flex-shrink:0;
+}
+.send-btn:hover { background:var(--accent2); }
+.send-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+.typing-indicator {
+  display:flex; gap:4px; padding:0.5rem 0.9rem; align-items:center;
+}
+.typing-dot {
+  width:5px; height:5px; border-radius:50%;
+  background:var(--teal); opacity:0.4;
+  animation: typingBounce 1s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay:0.15s; }
+.typing-dot:nth-child(3) { animation-delay:0.3s; }
+@keyframes typingBounce {
+  0%,100% { opacity:0.3; transform:translateY(0); }
+  50%      { opacity:1;   transform:translateY(-4px); }
+}
+
+/* ===== PAGE 3: AUDIO ===== */
+.lang-row {
+  display:flex; gap:0.6rem; margin-bottom:1.2rem;
+}
+
+.lang-btn {
+  flex:1;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:0.7rem;
+  color:var(--muted2);
+  font-family:'DM Mono',monospace;
+  font-size:0.65rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  text-align:center;
+}
+.lang-btn.active {
+  border-color:var(--teal);
+  background:rgba(45,212,191,0.08);
+  color:var(--teal);
+}
+
+.length-row {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:0.6rem; margin-bottom:1.5rem;
+}
+
+.length-btn {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:0.8rem 0.5rem;
+  color:var(--muted2);
+  font-family:'DM Mono',monospace;
+  font-size:0.6rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  text-align:center;
+}
+.length-btn .len-icon { font-size:1.1rem; display:block; margin-bottom:0.3rem; }
+.length-btn .len-name { font-family:'Syne',sans-serif; font-weight:700; font-size:0.65rem; display:block; }
+.length-btn .len-desc { font-size:0.52rem; color:var(--muted); margin-top:0.1rem; display:block; }
+.length-btn.active { border-color:var(--amber); background:rgba(251,191,36,0.08); color:var(--amber); }
+.length-btn.active .len-desc { color:rgba(251,191,36,0.6); }
+
+.section-label {
+  font-size:0.58rem; text-transform:uppercase;
+  letter-spacing:0.15em; color:var(--muted);
+  margin-bottom:0.8rem;
+  display:flex; align-items:center; gap:0.5rem;
+}
+.section-label::after {
+  content:''; flex:1; height:1px;
+  background:var(--border);
+}
+
+.voice-modes { display:flex; flex-direction:column; gap:0.7rem; margin-bottom:1.5rem; }
+
+.voice-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:1rem 1.2rem;
+  cursor:pointer;
+  transition:all 0.25s;
+  display:flex; align-items:center; gap:1rem;
+}
+.voice-card:hover { border-color:var(--border2); background:rgba(255,255,255,0.02); }
+.voice-card.active { border-color:var(--accent); background:rgba(124,106,247,0.06); }
+
+.voice-icon { font-size:1.5rem; flex-shrink:0; }
+
+.voice-info { flex:1; }
+.voice-name {
+  font-family:'Syne',sans-serif;
+  font-weight:700; font-size:0.8rem;
+  color:var(--text); margin-bottom:0.2rem;
+}
+.voice-desc { font-size:0.6rem; color:var(--muted); line-height:1.6; }
+
+.voice-check {
+  width:20px; height:20px; border-radius:50%;
+  border:2px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.6rem; transition:all 0.2s;
+  flex-shrink:0;
+}
+.voice-card.active .voice-check {
+  background:var(--accent); border-color:var(--accent); color:#fff;
+}
+
+/* Audio player */
+.audio-output {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  display:none;
+}
+
+.audio-output.visible { display:block; animation: pageIn 0.4s ease; }
+
+.audio-header {
+  padding:1.2rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  background:var(--surface2);
+  display:flex; align-items:center; gap:0.8rem;
+}
+
+.audio-playing-indicator {
+  display:flex; gap:3px; align-items:flex-end; height:20px;
+}
+.audio-bar {
+  width:3px; background:var(--accent2); border-radius:2px;
+  animation: audioBar 0.8s ease-in-out infinite;
+}
+.audio-bar:nth-child(2) { animation-delay:0.1s; height:10px; }
+.audio-bar:nth-child(3) { animation-delay:0.2s; height:16px; }
+.audio-bar:nth-child(4) { animation-delay:0.3s; height:8px; }
+.audio-bar:nth-child(5) { animation-delay:0.4s; height:14px; }
+@keyframes audioBar {
+  0%,100% { transform:scaleY(0.4); }
+  50%      { transform:scaleY(1); }
+}
+
+.audio-title-section { flex:1; }
+.audio-mode-label { font-size:0.55rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--muted); }
+.audio-track-name { font-family:'Syne',sans-serif; font-weight:700; font-size:0.85rem; color:var(--text); margin-top:0.1rem; }
+
+.script-container {
+  padding:1.2rem 1.5rem;
+  max-height:280px;
+  overflow-y:auto;
+}
+
+/* Solo script */
+.solo-script {
+  font-family:'Instrument Serif',serif;
+  font-size:1rem;
+  line-height:1.9;
+  color:var(--muted2);
+}
+.solo-script p { margin-bottom:1em; }
+
+/* Duo script */
+.duo-script { display:flex; flex-direction:column; gap:0.8rem; }
+.duo-line { display:flex; gap:0.7rem; align-items:flex-start; }
+.duo-line.female { flex-direction:row-reverse; }
+.duo-avatar {
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; flex-shrink:0; font-weight:600;
+}
+.duo-line.male   .duo-avatar { background:rgba(124,106,247,0.2); color:var(--accent2); border:1px solid rgba(124,106,247,0.3); }
+.duo-line.female .duo-avatar { background:rgba(251,113,133,0.15); color:var(--rose); border:1px solid rgba(251,113,133,0.3); }
+.duo-bubble {
+  flex:1; max-width:85%;
+  padding:0.7rem 0.9rem;
+  font-family:'Instrument Serif',serif;
+  font-size:0.9rem;
+  line-height:1.65;
+}
+.duo-line.male   .duo-bubble { background:rgba(124,106,247,0.06); border:1px solid rgba(124,106,247,0.15); border-radius:0 10px 10px 10px; }
+.duo-line.female .duo-bubble { background:rgba(251,113,133,0.06); border:1px solid rgba(251,113,133,0.15); border-radius:10px 0 10px 10px; }
+.duo-speaker { font-family:'DM Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:0.25rem; }
+.duo-line.male   .duo-speaker { color:var(--accent2); }
+.duo-line.female .duo-speaker { color:var(--rose); }
+
+/* Drama script */
+.drama-script { display:flex; flex-direction:column; gap:0.9rem; }
+.drama-line { padding-left:0.5rem; }
+.drama-character {
+  font-family:'DM Mono',monospace;
+  font-size:0.58rem; font-weight:500;
+  text-transform:uppercase; letter-spacing:0.15em;
+  margin-bottom:0.2rem;
+}
+.drama-dialogue {
+  font-family:'Instrument Serif',serif;
+  font-size:0.95rem; line-height:1.65;
+  padding-left:1rem;
+}
+.drama-stage {
+  font-family:'Instrument Serif',serif;
+  font-style:italic; font-size:0.8rem;
+  color:var(--muted); text-align:center;
+  padding:0.3rem 0;
+}
+.drama-scene {
+  background:rgba(255,255,255,0.03);
+  border-left:2px solid var(--border2);
+  padding:0.4rem 0.8rem;
+  font-family:'DM Mono',monospace;
+  font-size:0.58rem; text-transform:uppercase;
+  letter-spacing:0.1em; color:var(--muted);
+  margin:0.5rem 0;
+}
+
+/* char colors */
+.char-color-0 .drama-character { color:#a78bfa; }
+.char-color-1 .drama-character { color:#2dd4bf; }
+.char-color-2 .drama-character { color:#fb7185; }
+.char-color-3 .drama-character { color:#fbbf24; }
+.char-color-4 .drama-character { color:#6ee7b7; }
+
+.audio-controls {
+  padding:1rem 1.5rem;
+  border-top:1px solid var(--border);
+  display:flex; gap:0.7rem; align-items:center;
+  background:var(--surface2);
+}
+
+.ctrl-btn {
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:0.5rem 0.9rem;
+  color:var(--text);
+  font-family:'DM Mono',monospace;
+  font-size:0.6rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex; align-items:center; gap:0.4rem;
+}
+.ctrl-btn:hover { border-color:var(--accent); color:var(--accent2); }
+.ctrl-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.ctrl-btn.primary:hover { background:var(--accent2); border-color:var(--accent2); }
+
+.ctrl-btn.stop { background:rgba(251,113,133,0.1); border-color:rgba(251,113,133,0.3); color:var(--rose); }
+
+.dl-btn {
+  margin-left:auto;
+  background:rgba(45,212,191,0.08);
+  border:1px solid rgba(45,212,191,0.2);
+  border-radius:8px;
+  padding:0.5rem 0.9rem;
+  color:var(--teal);
+  font-family:'DM Mono',monospace;
+  font-size:0.6rem;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.dl-btn:hover { background:rgba(45,212,191,0.15); }
+
+/* Loading */
+.gen-loading {
+  display:none;
+  padding:2rem; text-align:center;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; margin-bottom:1rem;
+}
+.gen-loading.visible { display:block; }
+.gen-bars { display:flex; gap:4px; justify-content:center; align-items:flex-end; height:28px; margin-bottom:0.8rem; }
+.gen-bar { width:4px; background:var(--accent); border-radius:2px; animation:audioBar 0.7s ease-in-out infinite; }
+.gen-bar:nth-child(2){animation-delay:.1s}
+.gen-bar:nth-child(3){animation-delay:.2s}
+.gen-bar:nth-child(4){animation-delay:.3s}
+.gen-bar:nth-child(5){animation-delay:.4s}
+.gen-label { font-size:0.62rem; color:var(--muted); }
+
+/* ===== SETTINGS MODAL ===== */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+  z-index:1000; align-items:center; justify-content:center;
+  padding:1.5rem;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:1.5rem;
+  width:100%; max-width:420px;
+  animation: pageIn 0.3s ease;
+}
+.modal-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; margin-bottom:0.3rem; }
+.modal-sub { font-size:0.6rem; color:var(--muted); margin-bottom:1.5rem; }
+.field-label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted2); margin-bottom:0.3rem; }
+.field-group { margin-bottom:1rem; }
+.modal-save {
+  width:100%; margin-top:0.5rem;
+  background:var(--accent); border:none; border-radius:8px;
+  padding:0.8rem; color:#fff;
+  font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem;
+  cursor:pointer; transition:all 0.2s;
+}
+.modal-save:hover { background:var(--accent2); }
+.modal-close {
+  position:absolute; top:1rem; right:1rem;
+  background:transparent; border:none; color:var(--muted);
+  font-size:1rem; cursor:pointer;
+}
+
+/* Key status */
+.key-status {
+  font-size:0.58rem; margin-top:0.3rem;
+  padding:0.3rem 0.6rem; border-radius:20px; display:inline-block;
+}
+.key-status.ok   { background:rgba(45,212,191,0.1); color:var(--teal); border:1px solid rgba(45,212,191,0.2); }
+.key-status.miss { background:rgba(251,113,133,0.1); color:var(--rose); border:1px solid rgba(251,113,133,0.2); }
+
+/* scrollbar */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(124,106,247,0.2); border-radius:2px; }
+
+/* error */
+.error-toast {
+  background:rgba(251,113,133,0.1); border:1px solid rgba(251,113,133,0.3);
+  border-radius:8px; padding:0.7rem 1rem;
+  font-size:0.62rem; color:var(--rose);
+  font-family:'Instrument Serif',serif; font-style:italic;
+  margin-bottom:1rem; display:none;
+}
+.error-toast.visible { display:block; }
+
+@media(max-width:480px) {
+  .content { padding:1rem; }
+  .topbar { padding:1rem; }
+  .page-title { font-size:1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal" style="position:relative;">
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <div class="modal-title">⚙️ Settings</div>
+    <div class="modal-sub">உங்கள் API Keys இங்கே save பண்ணுங்க — device-லயே மட்டும் store ஆகும்</div>
+    <div class="field-group">
+      <div class="field-label">Claude API Key (Anthropic)</div>
+      <input type="password" id="claudeKey" placeholder="sk-ant-api03-..." />
+      <div id="claudeKeyStatus" class="key-status miss">⚠ Key இல்ல</div>
+    </div>
+    <div class="api-notice" style="margin-top:0.8rem;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:0.7rem 0.9rem;font-size:0.6rem;color:rgba(251,191,36,0.8);line-height:1.8;">
+      🎙️ <strong style="color:#fbbf24;display:block;margin-bottom:0.2rem;">Voice — Browser TTS (Free!)</strong>
+      Android: Google TTS app install பண்ணுங்க<br>
+      Settings → Language → Tamil (India) download பண்ணுங்க
+    </div>
+    <button class="modal-save" onclick="saveSettings()">Save & Close</button>
+  </div>
+</div>
+
+<!-- ===== PAGE 1: INPUT ===== -->
+<div class="page active" id="page1">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-hex">BC</div>
+      <div class="logo-name">Book<span style="color:#fbbf24">Chat</span></div>
+    </div>
+    <div class="topbar-right">
+      <button class="settings-btn" onclick="openSettings()">⚙ Settings</button>
+      <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">உங்கள் <span>Source</span> கொடுங்க</div>
+    <div class="page-sub">Text, Document, அல்லது Link — எதுவேணும்னாலும்</div>
+
+    <div class="input-cards">
+
+      <!-- TEXT -->
+      <div class="input-card open" id="card-text">
+        <div class="input-card-header" onclick="toggleCard('text')">
+          <div class="card-icon icon-text">✍️</div>
+          <div class="card-info">
+            <div class="card-title">Text / Source Code</div>
+            <div class="card-desc">Code, notes, article — paste பண்ணுங்க</div>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body">
+          <textarea id="textInput" rows="6" placeholder="// உங்கள் source code அல்லது text இங்கே paste பண்ணுங்க...
+
+function example() {
+  // Any code, any language
+}"></textarea>
+        </div>
+      </div>
+
+      <!-- DOCUMENT -->
+      <div class="input-card" id="card-doc">
+        <div class="input-card-header" onclick="toggleCard('doc')">
+          <div class="card-icon icon-doc">📄</div>
+          <div class="card-info">
+            <div class="card-title">Document Upload</div>
+            <div class="card-desc">PDF, TXT, MD, JS, PY எல்லா வகையும்</div>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body">
+          <div class="file-drop" id="docDrop"
+            ondrop="handleDrop(event,'doc')"
+            ondragover="event.preventDefault();this.classList.add('dragover')"
+            ondragleave="this.classList.remove('dragover')"
+            onclick="document.getElementById('docFile').click()">
+            <div id="docDropInner">
+              <div class="file-drop-icon">📂</div>
+              <div class="file-drop-text">
+                <strong>Click or Drop files here</strong>
+                .pdf .txt .md .js .py .ts .json .html .css .java
+              </div>
+            </div>
+            <div class="file-items" id="docFileList"></div>
+          </div>
+          <input type="file" id="docFile" multiple style="display:none"
+            accept=".pdf,.txt,.md,.js,.ts,.py,.json,.yaml,.html,.css,.java,.cpp,.go,.rb,.swift"
+            onchange="handleFileSelect(event,'doc')">
+        </div>
+      </div>
+
+      <!-- LINK -->
+      <div class="input-card" id="card-link">
+        <div class="input-card-header" onclick="toggleCard('link')">
+          <div class="card-icon icon-link">🔗</div>
+          <div class="card-info">
+            <div class="card-title">Web Link / URL</div>
+            <div class="card-desc">GitHub, docs, article links paste பண்ணுங்க</div>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body">
+          <input type="url" id="linkInput" placeholder="https://github.com/user/repo" style="margin-top:0.8rem;" />
+          <div style="font-size:0.58rem;color:var(--muted);margin-top:0.5rem;font-style:italic;">
+            💡 Link-ல் இருந்து text நீங்களே copy பண்ணி Text box-ல் paste பண்ணலாம்
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="next-btn" onclick="goToPage2()">
+      தொடரு — கேள்வி கேளுங்க →
+    </button>
+  </div>
+</div>
+
+<!-- ===== PAGE 2: REVIEW + CHAT ===== -->
+<div class="page" id="page2">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-hex">BC</div>
+      <div class="logo-name">Book<span style="color:#fbbf24">Chat</span></div>
+    </div>
+    <div class="topbar-right">
+      <button class="settings-btn" onclick="openSettings()">⚙ Settings</button>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">கேள்வி <span>கேளுங்க</span></div>
+    <div class="page-sub">Source review பண்ணி உங்க doubt கேளுங்க</div>
+
+    <!-- Source preview -->
+    <div class="source-preview">
+      <div class="source-preview-header">
+        <span style="font-size:0.9rem;">📋</span>
+        <span class="source-preview-label">உங்கள் Source Content</span>
+        <span class="source-chars" id="charCount">0 chars</span>
+      </div>
+      <div class="source-text" id="sourcePreview">—</div>
+    </div>
+
+    <!-- Chat -->
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg">
+          <div class="msg-avatar ai">AI</div>
+          <div class="msg-bubble ai">
+            உங்கள் source code ready! இப்போ என்ன கேள்வி வேணும்னாலும் கேளுங்க — தமிழிலோ English-லோ. 😊
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chatInput" rows="2"
+          placeholder="உங்கள் கேள்வி இங்கே..."
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+
+    <div class="error-toast" id="chatError"></div>
+
+    <div style="display:flex;gap:0.7rem;margin-top:0.5rem;">
+      <button class="back-btn" onclick="goTo(1)">← திரும்பு</button>
+      <button class="next-btn" style="flex:1;margin-top:0;" onclick="goToPage3()">
+        Audio உருவாக்கு →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE 3: AUDIO ===== -->
+<div class="page" id="page3">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-hex">BC</div>
+      <div class="logo-name">Book<span style="color:#fbbf24">Chat</span></div>
+    </div>
+    <div class="topbar-right">
+      <button class="settings-btn" onclick="openSettings()">⚙ Settings</button>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title"><span>Audio</span> உருவாக்கு</div>
+    <div class="page-sub">மொழி, நீளம், குரல் style தேர்ந்தெடுங்க</div>
+
+    <!-- Language -->
+    <div class="section-label">மொழி தேர்வு</div>
+    <div class="lang-row" style="margin-bottom:1.5rem;">
+      <button class="lang-btn active" data-lang="tamil" onclick="selectLang(this)">🇮🇳 தமிழ்</button>
+      <button class="lang-btn" data-lang="english" onclick="selectLang(this)">🇬🇧 English</button>
+      <button class="lang-btn" data-lang="both" onclick="selectLang(this)">🌐 Tamil + English</button>
+    </div>
+
+    <!-- Length -->
+    <div class="section-label">நீளம் தேர்வு</div>
+    <div class="length-row">
+      <button class="length-btn active" data-len="short" onclick="selectLen(this)">
+        <span class="len-icon">⚡</span>
+        <span class="len-name">Short</span>
+        <span class="len-desc">சுருக்கமா, direct-ஆ</span>
+      </button>
+      <button class="length-btn" data-len="medium" onclick="selectLen(this)">
+        <span class="len-icon">📖</span>
+        <span class="len-name">Medium</span>
+        <span class="len-desc">balanced explanation</span>
+      </button>
+      <button class="length-btn" data-len="long" onclick="selectLen(this)">
+        <span class="len-icon">🎭</span>
+        <span class="len-name">Long</span>
+        <span class="len-desc">விரிவான கதை</span>
+      </button>
+    </div>
+
+    <!-- Voice mode -->
+    <div class="section-label">குரல் Style</div>
+    <div class="voice-modes">
+
+      <div class="voice-card active" data-mode="solo" onclick="selectVoice(this)">
+        <div class="voice-icon">🎤</div>
+        <div class="voice-info">
+          <div class="voice-name">Solo — ஒரே குரல்</div>
+          <div class="voice-desc">ஒருவர் கதை சொல்வது மாதிரி, smooth narrative style</div>
+        </div>
+        <div class="voice-check">✓</div>
+      </div>
+
+      <div class="voice-card" data-mode="duo" onclick="selectVoice(this)">
+        <div class="voice-icon">🎙️</div>
+        <div class="voice-info">
+          <div class="voice-name">Duo — ஆண் + பெண் உரையாடல்</div>
+          <div class="voice-desc">இரண்டு பேர் சேர்ந்து நிறை குறைகளை பேசுவது மாதிரி</div>
+        </div>
+        <div class="voice-check"></div>
+      </div>
+
+      <div class="voice-card" data-mode="drama" onclick="selectVoice(this)">
+        <div class="voice-icon">🎭</div>
+        <div class="voice-info">
+          <div class="voice-name">Drama — Full Cast நாடகம்</div>
+          <div class="voice-desc">Source code-ல் உள்ள ஒவ்வொரு element-க்கும் தனி குரல், Q&A style</div>
+        </div>
+        <div class="voice-check"></div>
+      </div>
+
+    </div>
+
+    <div class="error-toast" id="audioError"></div>
+
+    <div class="gen-loading" id="genLoading">
+      <div class="gen-bars">
+        <div class="gen-bar"></div><div class="gen-bar"></div>
+        <div class="gen-bar"></div><div class="gen-bar"></div>
+        <div class="gen-bar"></div>
+      </div>
+      <div class="gen-label" id="genLabel">Script உருவாக்குகிறோம்...</div>
+    </div>
+
+    <!-- Audio output -->
+    <div class="audio-output" id="audioOutput">
+      <div class="audio-header">
+        <div class="audio-playing-indicator" id="playingIndicator" style="display:none">
+          <div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+        </div>
+        <span id="audioModeEmoji" style="font-size:1.2rem;">🎤</span>
+        <div class="audio-title-section">
+          <div class="audio-mode-label" id="audioModeLabel">SOLO MODE</div>
+          <div class="audio-track-name" id="audioTrackName">CodeStory Audio</div>
+        </div>
+      </div>
+      <div class="script-container" id="scriptContainer"></div>
+      <div class="audio-controls">
+        <button class="ctrl-btn primary" id="playBtn" onclick="playAudio()">▶ Play</button>
+        <button class="ctrl-btn stop" id="stopBtn" onclick="stopAudio()" style="display:none">⬛ Stop</button>
+        <button class="ctrl-btn" onclick="regenAudio()">↺ Regenerate</button>
+        <button class="dl-btn" onclick="downloadScript()">⬇ Download Audio</button>
+      </div>
+    </div>
+
+    <button class="next-btn" id="generateBtn" onclick="generateAudio()" style="margin-top:1rem;">
+      🎙️ Generate Audio
+    </button>
+
+    <div style="display:flex;gap:0.7rem;margin-top:0.8rem;">
+      <button class="back-btn" onclick="goTo(2)">← திரும்பு</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BACKEND = 'https://simple-app-uxtf.onrender.com';
+
+// ===== STATE =====
+let state = {
+  sourceText: '',
+  files: [],
+  chatHistory: [],
+  selectedLang: 'tamil',
+  selectedLen: 'short',
+  selectedVoice: 'solo',
+  generatedScript: null,
+  speechQueue: [],
+  isSpeaking: false
+};
+
+// ===== SETTINGS =====
+function openSettings() {
+  document.getElementById('claudeKey').value = localStorage.getItem('claudeKey') || '';
+  updateKeyStatus();
+  document.getElementById('settingsModal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('open');
+}
+function saveSettings() {
+  const ck = document.getElementById('claudeKey').value.trim();
+  if (ck) localStorage.setItem('claudeKey', ck);
+  updateKeyStatus();
+  closeSettings();
+}
+function updateKeyStatus() {
+  const ck = localStorage.getItem('claudeKey');
+  const cel = document.getElementById('claudeKeyStatus');
+  if (cel) {
+    if (ck && ck.startsWith('sk-')) { cel.className='key-status ok'; cel.textContent='✓ Key ready'; }
+    else { cel.className='key-status miss'; cel.textContent='⚠ Key இல்ல'; }
+  }
+}
+updateKeyStatus();
+
+// ===== CARD TOGGLE =====
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  card.classList.toggle('open');
+}
+
+// ===== FILE HANDLING =====
+function handleDrop(e, type) {
+  e.preventDefault();
+  document.getElementById(type + 'Drop').classList.remove('dragover');
+  addFiles(Array.from(e.dataTransfer.files), type);
+}
+function handleFileSelect(e, type) {
+  addFiles(Array.from(e.target.files), type);
+}
+function addFiles(files, type) {
+  files.forEach(f => {
+    if (!state.files.find(x => x.name === f.name)) state.files.push(f);
+  });
+  renderFileList(type);
+}
+function removeFile(name, type) {
+  state.files = state.files.filter(f => f.name !== name);
+  renderFileList(type);
+}
+function renderFileList(type) {
+  const list = document.getElementById(type + 'FileList');
+  const inner = document.getElementById(type + 'DropInner');
+  if (state.files.length === 0) { inner.style.display=''; list.innerHTML=''; return; }
+  inner.style.display = 'none';
+  const icons = {js:'🟡',ts:'🔵',py:'🐍',json:'📋',md:'📝',html:'🌐',css:'🎨',pdf:'📕',txt:'📄',java:'☕',cpp:'⚡'};
+  list.innerHTML = state.files.map(f => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    const icon = icons[ext] || '📄';
+    const size = f.size < 1024 ? f.size+'B' : f.size < 1048576 ? (f.size/1024).toFixed(1)+'KB' : (f.size/1048576).toFixed(1)+'MB';
+    return `<div class="file-item">
+      <span>${icon}</span>
+      <span class="file-item-name">${f.name}</span>
+      <span style="color:var(--muted);font-size:0.55rem;">${size}</span>
+      <span class="file-item-rm" onclick="removeFile('${f.name}','${type}');event.stopPropagation()">✕</span>
+    </div>`;
+  }).join('');
+}
+
+async function readAllFiles() {
+  if (state.files.length === 0) return '';
+  const texts = await Promise.all(state.files.map(f => f.text().catch(() => `[Could not read: ${f.name}]`)));
+  return state.files.map((f, i) => `\n=== ${f.name} ===\n${texts[i]}`).join('\n');
+}
+
+// ===== NAVIGATION =====
+function goTo(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page' + n).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+async function goToPage2() {
+  const text = document.getElementById('textInput').value.trim();
+  const fileContent = await readAllFiles();
+  const combined = text + (fileContent ? '\n\n' + fileContent : '');
+  if (!combined.trim()) { alert('முதலில் text அல்லது file கொடுங்க!'); return; }
+  state.sourceText = combined;
+  document.getElementById('sourcePreview').textContent = combined.slice(0, 500) + (combined.length > 500 ? '...' : '');
+  document.getElementById('charCount').textContent = combined.length.toLocaleString() + ' chars';
+  goTo(2);
+}
+
+function goToPage3() {
+  goTo(3);
+  // Reset page 3 state
+  const gb = document.getElementById('generateBtn');
+  const gl = document.getElementById('genLoading');
+  const ao = document.getElementById('audioOutput');
+  if (gb) { gb.style.display = 'flex'; gb.innerHTML = '🎙️ Generate Audio'; }
+  if (gl) gl.classList.remove('visible');
+  if (ao) ao.classList.remove('visible');
+}
+
+// ===== CLAUDE API =====
+async function callClaude(system, userMsg, history = []) {
+  const key = localStorage.getItem('claudeKey');
+  if (!key) throw new Error('API Key இல்ல! Settings-ல் போடுங்க.');
+  const res = await fetch('https://simple-app-uxtf.onrender.com/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      source_text: state.sourceText || '',
+      question: userMsg,
+      history: history.slice(-20)
+    })
+  });
+  if (!res.ok) {
+    const e = await res.json();
+    throw new Error(e.detail || 'Backend Error');
+  }
+  const data = await res.json();
+  return data.answer;
+}
+
+// ===== CHAT =====
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const q = input.value.trim();
+  if (!q) return;
+  const sendBtn = document.getElementById('sendBtn');
+  input.value = '';
+  sendBtn.disabled = true;
+
+  addChatMsg('user', q);
+  addTyping();
+
+  const systemPrompt = `You are a helpful AI assistant. The user has provided source code or content. Answer their questions about it clearly and helpfully in the language they ask (Tamil or English).
+
+SOURCE CONTENT:
+\`\`\`
+${state.sourceText.slice(0, 6000)}
+\`\`\``;
+
+  try {
+    const answer = await callClaude(systemPrompt, q, state.chatHistory);
+    removeTyping();
+    addChatMsg('ai', answer);
+    // Keep history limited to last 10 exchanges (20 messages)
+    state.chatHistory.push({ role: 'user', content: q });
+    state.chatHistory.push({ role: 'assistant', content: answer });
+    if (state.chatHistory.length > 20) state.chatHistory = state.chatHistory.slice(-20);
+  } catch(err) {
+    removeTyping();
+    // Show error as chat message AND toast
+    addChatMsg('ai', '⚠️ பிரச்சனை வந்துச்சு: ' + err.message + ' — மீண்டும் try பண்ணுங்க.');
+    showError('chatError', err.message);
+  }
+  sendBtn.disabled = false;
+}
+
+function addChatMsg(role, text) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = `
+    <div class="msg-avatar ${role}">${role === 'user' ? 'நீ' : 'AI'}</div>
+    <div class="msg-bubble ${role}">${text.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.id = 'typingIndicator';
+  div.className = 'chat-msg';
+  div.innerHTML = `<div class="msg-avatar ai">AI</div>
+    <div class="msg-bubble ai" style="padding:0.5rem 0.9rem;">
+      <div class="typing-indicator">
+        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+      </div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function removeTyping() {
+  document.getElementById('typingIndicator')?.remove();
+}
+
+// ===== SELECTORS =====
+function selectLang(btn) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.selectedLang = btn.dataset.lang;
+}
+function selectLen(btn) {
+  document.querySelectorAll('.length-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.selectedLen = btn.dataset.len;
+}
+function selectVoice(card) {
+  document.querySelectorAll('.voice-card').forEach(c => { c.classList.remove('active'); c.querySelector('.voice-check').textContent=''; });
+  card.classList.add('active');
+  card.querySelector('.voice-check').textContent = '✓';
+  state.selectedVoice = card.dataset.mode;
+}
+
+// ===== GENERATE AUDIO SCRIPT =====
+async function generateAudio() {
+  if (!state.sourceText.trim()) { showError('audioError', 'Content இல்ல! Page 1-ல் text போடுங்க.'); return; }
+
+  showLoading(true);
+  document.getElementById('generateBtn').style.display = 'none';
+  document.getElementById('audioOutput').classList.remove('visible');
+
+  try {
+    const res = await fetch('https://simple-app-uxtf.onrender.com/generate-script', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_text: state.sourceText,
+        lang: state.selectedLang,
+        length: state.selectedLen,
+        style: state.selectedVoice
+      })
+    });
+
+    if (!res.ok) {
+      const e = await res.json();
+      throw new Error(e.detail || 'Backend Error');
+    }
+
+    const data = await res.json();
+    state.generatedScript = data.script;
+
+    showLoading(false);
+    document.getElementById('generateBtn').style.display = 'flex';
+    document.getElementById('generateBtn').innerHTML = '↺ மீண்டும் உருவாக்கு';
+    document.getElementById('audioOutput').classList.add('visible');
+    updatePlayUI(false);
+
+  } catch(err) {
+    showLoading(false);
+    document.getElementById('generateBtn').style.display = 'flex';
+    showError('audioError', err.message);
+  }
+}
+
+
+async function playAudio() {
+  if (!state.generatedScript) return;
+  ttsAborted = false;
+  updatePlayUI(true);
+
+  const segments = buildSegments(state.generatedScript);
+  if (!segments.length) {
+    showError('audioError', 'Script இல்ல — மீண்டும் Generate பண்ணுங்க');
+    updatePlayUI(false);
+    return;
+  }
+
+  if (state.selectedVoice === 'solo') {
+    const fullText = segments.map(s => s.text).join(' ');
+    await playTTSFromBackend(fullText, 'tamil_male');
+  } else {
+    for (let i = 0; i < segments.length; i++) {
+      if (ttsAborted) break;
+      const v = segments[i].gender === 'female' ? 'tamil_female' : 'tamil_male';
+      await playTTSFromBackend(segments[i].text, v);
+      if (!ttsAborted) await new Promise(r => setTimeout(r, 100));
+    }
+  }
+
+  if (!ttsAborted) updatePlayUI(false);
+}
+
+async function playTTSFromBackend(text, voice) {
+  if (ttsAborted || !text.trim()) return;
+  try {
+    const res = await fetch('https://simple-app-uxtf.onrender.com/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice })
+    });
+    if (!res.ok) throw new Error('TTS Error');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    return new Promise((resolve) => {
+      const audio = new Audio(url);
+      audio.onended = () => { URL.revokeObjectURL(url); resolve(); };
+      audio.onerror = () => { URL.revokeObjectURL(url); resolve(); };
+      currentAudio = audio;
+      audio.play().catch(() => resolve());
+    });
+  } catch(e) {
+    if (hasTTS) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ta-IN';
+      return new Promise(r => { u.onend = r; u.onerror = r; window.speechSynthesis.speak(u); });
+    }
+  }
+}
+
+
+function stopAudio() {
+  ttsAborted = true;
+  if (currentAudio) { try { currentAudio.pause(); currentAudio = null; } catch(e) {} }
+  try { window.speechSynthesis.cancel(); } catch(e) {}
+  currentUtterances = [];
+  state.isSpeaking = false;
+  updatePlayUI(false);
+}
+
+function updatePlayUI(playing) {
+  const pb = document.getElementById('playBtn');
+  const sb = document.getElementById('stopBtn');
+  const pi = document.getElementById('playingIndicator');
+  if (pb) { pb.style.display = playing ? 'none' : 'flex'; pb.innerHTML = '▶ Play'; }
+  if (sb) sb.style.display = playing ? 'flex' : 'none';
+  if (pi) pi.style.display = playing ? 'flex' : 'none';
+  // Never hide genLoading here — generateAudio controls it
+}
+
+// Android Chrome TTS keepalive (prevents cutting off after ~15 sec)
+setInterval(() => {
+  if (!hasTTS) return;
+  if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+    try { window.speechSynthesis.pause(); window.speechSynthesis.resume(); } catch(e) {}
+  }
+}, 12000);
+
+// ===== DOWNLOAD AUDIO =====
+async function downloadScript() {
+  if (!state.generatedScript) return;
+  const dlBtn = document.querySelector('.dl-btn');
+  const s = state.generatedScript;
+
+  if (dlBtn) { dlBtn.textContent = '⏳ Recording...'; dlBtn.disabled = true; }
+
+  try {
+    // Request mic — user records what TTS speaks through phone speaker
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/webm'))
+      ? 'audio/webm' : 'audio/ogg';
+    const recorder = new MediaRecorder(stream, { mimeType });
+    const chunks = [];
+    recorder.ondataavailable = e => { if(e.data.size>0) chunks.push(e.data); };
+    recorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bookchat-' + s.type + '-' + Date.now() + (mimeType.includes('webm') ? '.webm' : '.ogg');
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (dlBtn) { dlBtn.textContent = '⬇ Download Audio'; dlBtn.disabled = false; }
+    };
+
+    recorder.start(100);
+    // Play all segments
+    const savedAbort = ttsAborted; ttsAborted = false;
+    const segments = buildSegments(state.generatedScript);
+    for (let i = 0; i < segments.length; i++) {
+      await speakSegment(segments[i], state.selectedLang);
+      await new Promise(r => setTimeout(r, 150));
+    }
+    await new Promise(r => setTimeout(r, 600));
+    recorder.stop();
+    ttsAborted = savedAbort;
+
+  } catch(err) {
+    // Fallback: text script download
+    let text = 'BookChat — ' + (s.title||'Script') + '\n' + '='.repeat(40) + '\n\n';
+    if (s.type==='solo') text += (s.paragraphs||[]).join('\n\n');
+    else if (s.type==='duo') text += (s.lines||[]).map(l=>(l.speaker||'')+': '+(l.text||'')).join('\n\n');
+    else if (s.type==='drama') {
+      if (s.scene) text += '[' + s.scene + ']\n\n';
+      text += (s.lines||[]).map(l => l.isStage ? '(' + l.dialogue + ')' : (l.character||'') + ':\n  ' + (l.dialogue||'')).join('\n\n');
+    }
+    const blob = new Blob([text],{type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url;
+    a.download='bookchat-script-'+Date.now()+'.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showError('audioError', 'Mic இல்லாம record ஆகல — Script download ஆச்சு');
+    if (dlBtn) { dlBtn.textContent = '⬇ Download Audio'; dlBtn.disabled = false; }
+  }
+}
+
+</script>
+</body>
+</html>
