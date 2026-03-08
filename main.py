@@ -10,7 +10,6 @@ import io
 
 app = FastAPI()
 
-# CORS — GitHub Pages frontend allow பண்றோம்
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,35 +17,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ===== MODELS =====
+# Server-side API key — users need not provide their own
+ANTHROPIC_KEY = os.environ.get("ANTHROPIC_KEY", "")
 
 class ChatRequest(BaseModel):
-    claude_key: str
     source_text: str
     question: str
     history: list = []
 
 class ScriptRequest(BaseModel):
-    claude_key: str
     source_text: str
-    lang: str        # tamil / english / both
-    length: str      # short / medium / long
-    style: str       # solo / duo / drama
+    lang: str
+    length: str
+    style: str
 
 class TTSRequest(BaseModel):
     text: str
-    voice: str = "ta-IN-ValluvarNeural"  # default Tamil male
-
-# ===== VOICE MAP =====
+    voice: str = "tamil_male"
 
 VOICES = {
-    "tamil_male":   "ta-IN-ValluvarNeural",
-    "tamil_female": "ta-IN-PallaviNeural",
-    "english_male": "en-IN-PrabhatNeural",
-    "english_female": "en-IN-NeerjaNeural",
+    "tamil_male":    "ta-IN-ValluvarNeural",
+    "tamil_female":  "ta-IN-PallaviNeural",
+    "english_male":  "en-IN-PrabhatNeural",
+    "english_female":"en-IN-NeerjaNeural",
 }
-
-# ===== ROUTES =====
 
 @app.get("/")
 def root():
@@ -54,10 +48,10 @@ def root():
 
 @app.post("/chat")
 async def chat(req: ChatRequest):
-    """Claude-கிட்ட கேள்வி கேட்கும்"""
     try:
-        client = anthropic.Anthropic(api_key=req.claude_key)
-
+        if not ANTHROPIC_KEY:
+            raise HTTPException(status_code=500, detail="Server API key not configured")
+        client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
         system = f"""You are a helpful AI assistant. Answer questions about the provided content clearly.
 Answer in Tamil if asked in Tamil, English if asked in English.
 
@@ -65,63 +59,40 @@ SOURCE CONTENT:
 ```
 {req.source_text[:6000]}
 ```"""
-
         messages = req.history[-20:] + [{"role": "user", "content": req.question}]
-
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1000,
             system=system,
             messages=messages
         )
-
         return {"answer": response.content[0].text}
-
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/generate-script")
 async def generate_script(req: ScriptRequest):
-    """Script generate பண்ணும்"""
     try:
-        client = anthropic.Anthropic(api_key=req.claude_key)
-
+        if not ANTHROPIC_KEY:
+            raise HTTPException(status_code=500, detail="Server API key not configured")
+        client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
         lang_map = {"tamil": "Tamil", "english": "English", "both": "Tamil and English mixed"}
         len_map = {
             "short": "2-3 minutes, key points only",
             "medium": "4-6 minutes, balanced",
             "long": "8-10 minutes, detailed"
         }
-
         if req.style == "solo":
-            format_inst = """Return JSON:
-{
-  "type": "solo",
-  "title": "...",
-  "paragraphs": ["paragraph1", "paragraph2", ...]
-}"""
+            format_inst = '''Return JSON:
+{"type":"solo","title":"...","paragraphs":["para1","para2"]}'''
         elif req.style == "duo":
-            format_inst = """Return JSON:
-{
-  "type": "duo",
-  "title": "...",
-  "lines": [
-    {"speaker": "Arjun", "text": "..."},
-    {"speaker": "Priya", "text": "..."}
-  ]
-}"""
-        else:  # drama
-            format_inst = """Return JSON:
-{
-  "type": "drama",
-  "title": "...",
-  "scene": "Scene description",
-  "lines": [
-    {"character": "NAME", "dialogue": "...", "isStage": false},
-    {"character": "", "dialogue": "stage direction", "isStage": true}
-  ]
-}"""
+            format_inst = '''Return JSON:
+{"type":"duo","title":"...","lines":[{"speaker":"Arjun","text":"..."},{"speaker":"Priya","text":"..."}]}'''
+        else:
+            format_inst = '''Return JSON:
+{"type":"drama","title":"...","scene":"...","lines":[{"character":"NAME","dialogue":"...","isStage":false}]}'''
 
         prompt = f"""Convert this content into an audio {req.style} script.
 Language: {lang_map.get(req.lang, 'Tamil')}
@@ -132,54 +103,42 @@ CONTENT:
 
 {format_inst}
 
-Return ONLY valid JSON, no other text."""
+Return ONLY valid JSON, nothing else."""
 
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=2000,
             messages=[{"role": "user", "content": prompt}]
         )
-
         import json, re
         raw = response.content[0].text.strip()
-        # Clean JSON
         raw = re.sub(r'^```json\s*', '', raw)
         raw = re.sub(r'^```\s*', '', raw)
         raw = re.sub(r'\s*```$', '', raw)
         raw = re.sub(r',\s*}', '}', raw)
         raw = re.sub(r',\s*]', ']', raw)
-
         script = json.loads(raw)
         return {"script": script}
-
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/tts")
 async def text_to_speech(req: TTSRequest):
-    """Edge TTS — text to audio"""
     try:
-        voice = VOICES.get(req.voice, req.voice)
+        voice = VOICES.get(req.voice, "ta-IN-ValluvarNeural")
         communicate = edge_tts.Communicate(req.text, voice)
-
         audio_buffer = io.BytesIO()
         async for chunk in communicate.stream():
             if chunk["type"] == "audio":
                 audio_buffer.write(chunk["data"])
-
         audio_buffer.seek(0)
         return StreamingResponse(
             audio_buffer,
             media_type="audio/mpeg",
             headers={"Content-Disposition": "attachment; filename=audio.mp3"}
         )
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/voices")
-async def list_voices():
-    """Available voices list"""
-    return {"voices": VOICES}
+        
