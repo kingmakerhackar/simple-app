@@ -141,4 +141,3 @@ async def text_to_speech(req: TTSRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-        
